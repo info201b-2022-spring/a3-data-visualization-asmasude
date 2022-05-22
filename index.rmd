@@ -1,0 +1,78 @@
+---
+  editor_options: 
+  markdown: 
+  wrap: 72
+---
+  
+```{r setup, include = FALSE}
+# Load results from the analysis
+# errors and messages will not be printed given the `include = FALSE` option
+source("analysis.R")
+
+# Also load additional libraries that may be needed for output
+library("knitr")
+```
+### Introduction  
+This data set on incarceration contains statistical data on incarcerated populations. It contains information on the demographics in terms of their race, their location, and the year the data was taken. All together, the data is able to paint an interesting, depressing, but not surprising picture of the current state of US prisons. I am looking at the racial disparities in the prison system that come from the data by analyzing the differences between the white imprisoned population vs the total prison population and the black imprisoned population vs the total prison population.
+ 
+
+### Summary Paragraph
+I wanted to look at the racial disparity and figured the best would be to look at the situation where the prison population was at its highest. I found that in 1993 in LA County, the prison population was at its peak. I also found that the maximum white population and black population also occurred in that same year. A third finding was that in 1993, there were 7,036 White people in the prison and 13,144 Black people, meaning that the ratio was nearly 1 to 2, which is insane. I decided to compare this peak to the most recent data and found that the Black prison population in 2018 was 247,547 and the total population in prisons was 737,126, meaning Black people made up one third of the prisoners. My last finding was that in LA County between 1993 and 2018 the White prison population decreased by 4,457 and the Black prison population decreased by 8,119.
+
+
+### My Analysis in Charts
+
+For my chosen variable, I decided to look at the overall prison population and the Black prison population for the most recently reported data. I included this to visually percentage makeups in a way that would be easier to understand than just statistics. The results show that the ratio of Black people in prison to total populations does not match up to what everyone has experienced to be the ratio of Black people in America to the total population of America.
+
+```{r bar_chart , echo = FALSE} 
+bar_chart <- ggplot(data = jail_pop_df) +
+  geom_bar(stat = "identity", aes(x = "Total Black Jail Population (2018)", y = total_black_jail_pop_2018, fill = "green")) +
+  geom_bar(stat = "identity", aes(x = "Total Jail Population (2018)", y = total_jail_population_2018, fill = "pink")) +
+  scale_fill_manual(
+    name = "Population Type",
+    values = c("green", "pink"),
+    labels = c("Black Imprisoned Population", "Total Imprisoned Population")
+  ) +
+  ggtitle("Total Jail Population vs. Black Jail Population in 2018") +
+  labs(x = "", y = "Jail Population")
+ bar_chart
+```
+
+
+
+Since Los Angeles County had the highest ever prison population recorded at a time, I focused on comparing the populations in LA County prisons over time since I thought they would epitomize population disparities. Race is a big issue in the corruption of prisons and this chart shows the inequities. The chart shows just how high the Black prison population was in a way that is much more obvious compared to rows of numbers. We saw earlier that there were certain years where the Black population was much higher than the white and this is a great visualization to show how drastic the evolution is while also bringing in other races. 
+
+```{r line_chart , echo = FALSE} 
+new_chart <- incarceration_data[str_detect(incarceration_data$county_name, "Los Angeles County"), ]
+chart_1_columns_na <- select(new_chart, year,aapi_jail_pop, aapi_jail_pop, black_jail_pop, latinx_jail_pop, native_jail_pop, white_jail_pop)
+chart_1_columns <- na.omit(chart_1_columns_na)
+line_chart <- ggplot(data = chart_1_columns) +
+  geom_line(mapping = aes(x = year, y = aapi_jail_pop, color = "blue")) +
+  geom_line(mapping = aes(x = year, y = black_jail_pop, color = "green")) +
+  geom_line(mapping = aes(x = year, y = latinx_jail_pop, color = "orange")) +
+  geom_line(mapping = aes(x = year, y = native_jail_pop, color = "red")) +
+  geom_line(mapping = aes(x = year, y = white_jail_pop, color = "yellow")) +
+    scale_color_manual(
+    name = "Races:",
+    values = c("orange", "blue", "red", "yellow", "green"),
+    labels = c("Asian American & Pacific Islander", "Black", "Latino", "Native-American", "White")
+  
+  ) +
+  ggtitle("Incarcerated Population by Race in Los Angeles County") +
+    labs(x = "Year", y = "Incarcerated Population")
+line_chart
+```
+
+This map show the Black incarcerated population as of 2018. I included it with the most up to date data possible in order to show how issues like this are still prevalent in everyone's lives and communities. Interestingly, Southern California has a very high Black incarcerated population compared to what I thought of more densely packed states with more densely packed Black populations.
+```{r black_incarceration_map , echo = FALSE} 
+black_incarceration_map <- ggplot(final_df) +
+   geom_polygon(
+     mapping = aes(x = long, y = lat, group = group, fill = Population),
+    color = "black", size = 0.3
+   ) +
+   coord_map() +
+   scale_fill_continuous(limits = c(0, max(final_df$Population)), na.value = "white", low = "green", high = "blue") +
+   blank_theme +
+   ggtitle("Black Incarceration Population in 2018 by County")
+black_incarceration_map
+```
